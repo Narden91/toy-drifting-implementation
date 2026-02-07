@@ -39,7 +39,7 @@ _SQRT2_INV = 1.0 / np.sqrt(2)
 def _get_8gaussian_centers(device: torch.device) -> Tensor:
     """Get cached 8-Gaussian centers for the given device."""
     if device not in _CENTERS_CACHE:
-        scale = 4.0
+        scale = 1.4142  # Reduced from 4.0 to sqrt(2) to match temp=0.05
         _CENTERS_CACHE[device] = torch.tensor([
             [1, 0], [-1, 0], [0, 1], [0, -1],
             [_SQRT2_INV, _SQRT2_INV],

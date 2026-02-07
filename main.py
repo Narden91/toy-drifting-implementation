@@ -3,6 +3,8 @@ import argparse
 import yaml
 import torch
 from pathlib import Path
+import os
+os.environ['CUDA_LAUNCH_BLOCKING'] = '1'
 
 from models.drifting_model import DriftingModel
 from data.generators import gen_data, gen_checkerboard, get_device

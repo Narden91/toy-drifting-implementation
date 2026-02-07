@@ -52,11 +52,21 @@ def train(
 
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
     pbar = trange(n_iter)
+    
+    # helper: get device from model
+    device = next(model.parameters()).device
 
+    torch.autograd.set_detect_anomaly(True)
     for i in pbar:
-        pos = data_fn(batch_size)
+        pos = data_fn(batch_size, device=device)
+        if torch.isnan(pos).any():
+            print("NaN detected in data!")
+            break
 
         loss = model(pos, n_gen=batch_size).mean()
+        if torch.isnan(loss):
+            print("NaN loss detected!")
+            break
 
         optimizer.zero_grad()
         loss.backward()
@@ -69,7 +79,7 @@ def train(
         if visualizer is not None and (i + 1) % viz_update_every == 0:
             with torch.no_grad():
                 gen_vis = model.generate(min(500, viz_max_points))
-                real_vis = data_fn(min(500, viz_max_points))
+                real_vis = data_fn(min(500, viz_max_points), device=device)
                 visualizer.update(i + 1, loss.item(), real_vis, gen_vis)
             
             # Check if window was closed

@@ -104,7 +104,7 @@ class RealtimeVisualizer:
         self.real_scatter = pg.ScatterPlotItem(
             size=3,
             pen=None,
-            brush=pg.mkBrush(0, 0, 0, 180)
+            brush=pg.mkBrush(0, 255, 255, 150)  # Cyan
         )
         self.real_plot.addItem(self.real_scatter)
         

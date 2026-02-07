@@ -24,11 +24,11 @@ performance:
   
   # Use torch.compile for JIT optimization (PyTorch 2.x only)
   # Provides 30-50% speedup on compatible hardware
-  compile_model: true  # Set to true if using PyTorch 2.0+
+  compile_model: false  # Set to true if using PyTorch 2.0+
   
   # Mixed precision training (AMP)
   # Reduces memory usage and increases speed on modern GPUs
-  mixed_precision: true  # Enable for NVIDIA GPUs with Tensor Cores
+  mixed_precision: false  # Enable for NVIDIA GPUs with Tensor Cores
   
   # Gradient checkpointing (for memory-limited scenarios)
   # Trades computation for memory - useful for very large models
