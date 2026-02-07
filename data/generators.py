@@ -2,9 +2,8 @@
 import torch
 import numpy as np
 from torch import Tensor
+from typing import Optional
 
-# We can find the device from the calling context or pass it explicitly.
-# For simplicity, we'll default to CPU if not provided, but efficient usage requires passing device.
 
 def get_device() -> torch.device:
     """Auto-detect the best available device."""
@@ -14,32 +13,95 @@ def get_device() -> torch.device:
         return torch.device("mps")
     return torch.device("cpu")
 
+
 DEVICE = get_device()
 
-def gen_data(n: int, device: torch.device = DEVICE) -> Tensor:
-    """Generate 2D mixture of 8 Gaussians arranged in a circle."""
-    scale = 4.0
-    centers = torch.tensor([
-        [1, 0], [-1, 0], [0, 1], [0, -1],
-        [1 / np.sqrt(2), 1 / np.sqrt(2)],
-        [1 / np.sqrt(2), -1 / np.sqrt(2)],
-        [-1 / np.sqrt(2), 1 / np.sqrt(2)],
-        [-1 / np.sqrt(2), -1 / np.sqrt(2)]
-    ], dtype=torch.float32, device=device) * scale
+# Cache centers to avoid repeated tensor creation
+_CENTERS_CACHE: dict[torch.device, Tensor] = {}
+_SQRT2_INV = 1.0 / np.sqrt(2)
 
-    x = 0.5 * torch.randn(n, 2, device=device)
+
+def _get_8gaussian_centers(device: torch.device) -> Tensor:
+    """Get cached 8-Gaussian centers for the given device."""
+    if device not in _CENTERS_CACHE:
+        scale = 4.0
+        _CENTERS_CACHE[device] = torch.tensor([
+            [1, 0], [-1, 0], [0, 1], [0, -1],
+            [_SQRT2_INV, _SQRT2_INV],
+            [_SQRT2_INV, -_SQRT2_INV],
+            [-_SQRT2_INV, _SQRT2_INV],
+            [-_SQRT2_INV, -_SQRT2_INV]
+        ], dtype=torch.float32, device=device) * scale
+    return _CENTERS_CACHE[device]
+
+
+def gen_data(n: int, device: Optional[torch.device] = None) -> Tensor:
+    """
+    Generate 2D mixture of 8 Gaussians arranged in a circle.
+    
+    Optimized with cached centers and efficient tensor operations.
+    
+    Args:
+        n: Number of samples to generate
+        device: Target device (defaults to auto-detected device)
+    
+    Returns:
+        Tensor of shape [n, 2] with sampled points
+    """
+    if device is None:
+        device = DEVICE
+    
+    centers = _get_8gaussian_centers(device)
+    
+    # Pre-allocate and generate noise
+    noise = torch.randn(n, 2, device=device) * 0.5
+    
+    # Random center selection
     center_ids = torch.randint(0, 8, (n,), device=device)
-    x = (x + centers[center_ids]) / np.sqrt(2)
-    return x
+    
+    # Combine noise with selected centers
+    samples = (noise + centers[center_ids]) * _SQRT2_INV
+    
+    return samples
 
 
-def gen_checkerboard(n: int, device: torch.device = DEVICE) -> Tensor:
-    """Generate 2D checkerboard pattern (4 tiles)."""
-    b = torch.randint(0, 2, (n,), device=device)
-    i = (torch.randint(0, 2, (n,), device=device) * 2 + b).float()
-    j = (torch.randint(0, 2, (n,), device=device) * 2 + b).float()
-    u = torch.rand(n, device=device)
-    v = torch.rand(n, device=device)
-    pts = torch.stack([i + u, j + v], dim=1) - 2.0
-    pts = pts / 2.0
-    return pts + 0.05 * torch.randn(n, 2, device=device)
+def gen_checkerboard(n: int, device: Optional[torch.device] = None) -> Tensor:
+    """
+    Generate 2D checkerboard pattern (4 tiles).
+    
+    Optimized with fused operations for better performance.
+    
+    Args:
+        n: Number of samples to generate
+        device: Target device (defaults to auto-detected device)
+    
+    Returns:
+        Tensor of shape [n, 2] with sampled points
+    """
+    if device is None:
+        device = DEVICE
+    
+    # Generate all random values in minimal calls
+    b = torch.randint(0, 2, (n,), device=device, dtype=torch.float32)
+    
+    # Use randint directly with dtype=float32 to avoid conversion
+    i_base = torch.randint(0, 2, (n,), device=device, dtype=torch.float32)
+    j_base = torch.randint(0, 2, (n,), device=device, dtype=torch.float32)
+    
+    # Compute grid positions
+    i = i_base * 2.0 + b
+    j = j_base * 2.0 + b
+    
+    # Generate uniform offsets
+    offsets = torch.rand(n, 2, device=device)
+    
+    # Stack coordinates
+    pts = torch.stack([i + offsets[:, 0], j + offsets[:, 1]], dim=1)
+    
+    # Center and scale
+    pts = (pts - 2.0) * 0.5
+    
+    # Add noise
+    noise = torch.randn(n, 2, device=device) * 0.05
+    
+    return pts + noise

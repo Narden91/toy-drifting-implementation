@@ -3,3 +3,5 @@ numpy
 matplotlib
 tqdm
 pyyaml
+pyqtgraph>=0.13.0
+PyQt6>=6.4.0

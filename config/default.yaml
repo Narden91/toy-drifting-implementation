@@ -1,7 +1,7 @@
 training:
   batch_size: 2048
   lr: 0.001
-  n_iter: 5000
+  n_iter: 500
   sample_every: 1000
   n_samples: 4096
 
@@ -13,3 +13,10 @@ model:
 
 data:
   dataset: "8gaussians" # or "checkerboard"
+
+visualization:
+  enabled: true
+  target_fps: 120
+  update_every: 1  # Update every N training steps
+  max_display_points: 2000  # Downsample to this many points for display
+  loss_history_size: 1000  # Ring buffer size for loss history
