@@ -56,17 +56,10 @@ def train(
     # helper: get device from model
     device = next(model.parameters()).device
 
-    torch.autograd.set_detect_anomaly(True)
     for i in pbar:
         pos = data_fn(batch_size, device=device)
-        if torch.isnan(pos).any():
-            print("NaN detected in data!")
-            break
 
         loss = model(pos, n_gen=batch_size).mean()
-        if torch.isnan(loss):
-            print("NaN loss detected!")
-            break
 
         optimizer.zero_grad()
         loss.backward()

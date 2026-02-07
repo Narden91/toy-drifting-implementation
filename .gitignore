@@ -120,4 +120,5 @@ results/
 catboost_info/
 .agent/
 
-.env
+.venv
+*.jpg

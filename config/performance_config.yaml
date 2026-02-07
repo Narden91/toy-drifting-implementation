@@ -4,7 +4,7 @@
 training:
   batch_size: 2048
   lr: 0.001
-  n_iter: 5000
+  n_iter: 1000
   sample_every: 1000
   n_samples: 4096
   
@@ -23,19 +23,19 @@ data:
 # Performance optimizations (all enabled)
 performance:
   # Device selection (auto-detected if not specified)
-  device: "auto"  # Options: "auto", "cuda", "cpu", "mps"
+  device: "cuda"  # Options: "auto", "cuda", "cpu", "mps"
   
   # Use torch.compile for JIT optimization (PyTorch 2.x only)
   # Provides 30-50% speedup on compatible hardware
-  compile_model: false  # Set to true if using PyTorch 2.0+
+  compile_model: true  # Set to true if using PyTorch 2.0+
   
   # Mixed precision training (AMP)
   # Reduces memory usage and increases speed on modern GPUs
-  mixed_precision: false  # Enable for NVIDIA GPUs with Tensor Cores
+  mixed_precision: true  # Enable for NVIDIA GPUs with Tensor Cores
   
   # Gradient checkpointing (for memory-limited scenarios)
   # Trades computation for memory - useful for very large models
-  gradient_checkpointing: true
+  gradient_checkpointing: false
   
   # Data loading optimizations
   pin_memory: true  # Faster GPU transfer
