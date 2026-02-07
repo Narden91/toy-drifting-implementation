@@ -4,9 +4,12 @@
 training:
   batch_size: 2048
   lr: 0.001
-  n_iter: 500
+  n_iter: 5000
   sample_every: 1000
   n_samples: 4096
+  
+  visualization:
+    enabled: false
 
 model:
   noise_dim: 32

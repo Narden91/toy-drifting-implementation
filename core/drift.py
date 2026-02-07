@@ -35,7 +35,7 @@ def compute_drift(
     
     # Mask self-interactions (y_neg = x in standard usage)
     if N == y_neg.shape[0]:
-        dist_neg = dist_neg + torch.eye(N, device=x.device) * 1e4
+        dist_neg = dist_neg + torch.eye(N, device=x.device) * 1e6
     
     # Logits: -dist / temp
     logit = torch.cat([
