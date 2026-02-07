@@ -62,9 +62,8 @@ def train(
         loss.backward()
         optimizer.step()
 
-        # Update progress bar
         if (i + 1) % 10 == 0:
-            pbar.set_description(f"loss: {loss.item():.4f}")
+            pbar.set_description(f"loss: {loss.item():.4e}")
         
         # Update real-time visualizer
         if visualizer is not None and (i + 1) % viz_update_every == 0:

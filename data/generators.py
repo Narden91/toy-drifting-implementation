@@ -5,8 +5,23 @@ from torch import Tensor
 from typing import Optional
 
 
-def get_device() -> torch.device:
-    """Auto-detect the best available device."""
+def get_device(config: Optional[dict] = None) -> torch.device:
+    """
+    Get the device to use for computation.
+    
+    Args:
+        config: Optional configuration dict with 'performance' -> 'device' setting
+    
+    Returns:
+        torch.device to use
+    """
+    # Check if config specifies a device
+    if config is not None and 'performance' in config:
+        device_str = config['performance'].get('device', 'auto')
+        if device_str != 'auto':
+            return torch.device(device_str)
+    
+    # Auto-detect the best available device
     if torch.cuda.is_available():
         return torch.device("cuda")
     elif hasattr(torch.backends, "mps") and torch.backends.mps.is_available():

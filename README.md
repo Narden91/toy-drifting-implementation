@@ -13,7 +13,10 @@ PyTorch implementation of generative modeling via drifting, based on the paper [
 ## Quick Start
 
 ```bash
-# Install dependencies
+# Install dependencies with uv (recommended)
+uv sync
+
+# Or use pip
 pip install -r requirements.txt
 
 # Run training with default config (8-Gaussians dataset)
@@ -23,7 +26,7 @@ uv run python main.py
 uv run python main.py --config config/checkerboard_config.yaml
 
 # Run performance benchmark
-python tests/benchmark_performance.py
+uv run python tests/benchmark_performance.py
 ```
 
 ## Performance

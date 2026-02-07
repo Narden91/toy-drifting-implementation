@@ -29,7 +29,7 @@ def main():
 
     config = load_config(args.config)
     
-    device = get_device()
+    device = get_device(config)
     print(f"Device: {device}")
     print(f"Configuration: {config}")
 
